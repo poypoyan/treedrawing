@@ -2,68 +2,73 @@
 # Core Functions
 
 import sys
+from typing import Callable
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sys functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# remove_traceback: remove traceback from error/exception messages
+# removeTraceback: remove traceback from error/exception messages
 # adapted from https://stackoverflow.com/a/6598286
 def removeTraceback():
     def rtExceptionHandler(exctype, value, traceback):
         print("{0}: {1}".format(exctype.__name__, value), file=sys.stderr)
     sys.excepthook = rtExceptionHandler
 
-# restore_traceback: restore default excepthook
+# restoreTraceback: restore default excepthook
 def restoreTraceback():
     sys.excepthook = sys.__excepthook__
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sus functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~ algorithm functions ~~~~~~~~~~~~~~~~~~~~~~~~~
 # analyzeNode: record relevant information for each node recursively
-def analyzeNode(inputTree, fillCtr, connex, labels, weights, majors, current, stack = []):
-    currScan = current   # init (note: these are strings, unlike in other functions)
+def analyzeNode(fillCtr, connex: list, labels: dict,   # fillCtr is always int inside []
+                weights: list, majors: list, currentStr: str,
+                procNewNodes: Callable, stack = []) -> None:
+    currScan = currentStr   # init
     # traverse lines iteratively until the node either
     # has no child node or has multiple child nodes
     while True:
         weights[labels[currScan]] = 0   # init (for weights)
-        currChildNodes = processChildNodes(inputTree, fillCtr, connex, labels, currScan)   # process new nodes
+        currChildNodes = procNewNodes(fillCtr, connex, labels, currScan)   # process new nodes
         currLength = len(currChildNodes)
         if currLength != 1:
             break
         currScan = currChildNodes[0]
-    # just for better readability 
-    currentLabel = labels[current]
+    # variables for better readability 
+    currentStrLabel = labels[currentStr]
     currScanLabel = labels[currScan]
     # init (for majors)
-    majors[currentLabel] = stack
-    if currScan != current:
-        majors[currScanLabel] = stack + [currentLabel]
+    majors[currentStrLabel] = stack
+    if currScan != currentStr:
+        majors[currScanLabel] = stack + [currentStrLabel]
     # do all below if currScan has multiple child nodes
     if currLength != 0:
         newStack = majors[currScanLabel] + [currScanLabel]
         for i in currChildNodes:
-            analyzeNode(inputTree, fillCtr, connex, labels, weights, majors, i, newStack)
+            analyzeNode(fillCtr, connex, labels, weights, majors, i, procNewNodes, newStack)
             weights[currScanLabel] += weights[labels[i]]
     # final increments
     weights[currScanLabel] += 1
-    if currScan != current:
-        weights[currentLabel] = weights[currScanLabel] + 1
+    if currScan != currentStr:
+        weights[currentStrLabel] = weights[currScanLabel] + 1
     return
 
-# processChildNodes: store labels and structure of newly discovered nodes
-def processChildNodes(inputTree, fillCtr, connex, labels, current):
-    childNodeNames = getChildNodes(inputTree, current)   # CUSTOM: array of node names
+# preProcNewNodes: store labels and structure of newly discovered nodes (prior to closure)
+def preProcNewNodes(inputTree: object, fillCtr, connex: list, labels: dict,
+                currentStr: str, getChildNodes: Callable) -> list:
+    childNodeNames = getChildNodes(inputTree, currentStr)
     childNodeLength = len(childNodeNames)
     connexArr = [None] * childNodeLength
     for i in range(childNodeLength):
-        if childNodeNames[i] in labels:
-            raise ValueError("cycle detected at node '{}.'".format(current))
+        if childNodeNames[i] in labels:   # one of reasons labels is dict
+            raise ValueError("cycle detected at node '{}'.".format(currentStr))
         fillCtr[0] += 1
         labels[childNodeNames[i]] = fillCtr[0]
         connexArr[i] = fillCtr[0]
-    connex[labels[current]] = connexArr   # save to connex
+    connex[labels[currentStr]] = connexArr   # save to connex
     return childNodeNames
 
 # setInitCoord: set initial coordinates to each node recusively
-def setInitCoord(connex, weights, coords, outDir, sideDir, current = 0, dist = 1.0):
+def setInitCoord(connex: list, weights: list, coords: list,
+                outDir: str, sideDir:str, current = 0, dist = 1.0) -> None:
     currScan = current   # init
     lineNodes = []   # store nodes with only 1 child node
     # traverse lines iteratively until the node either
@@ -105,8 +110,13 @@ def setInitCoord(connex, weights, coords, outDir, sideDir, current = 0, dist = 1
     # final stuff
     return
 
+# connexSort: sort connex[current] according to ascending weights
+def connexSort(connex: list, weights: list, current: int) -> list:
+    return [i for (v, i) in sorted ((weights[i], i) for i in connex[current])]
+
 # fixCoord: fix coordinates of nodes so that there is no nodes with same location
-def fixCoord(connex, weights, majors, coords, sideDir, dist = 1.0):
+def fixCoord(connex: list, weights: list, majors: list, coords: list,
+                sideDir: str, dist = 1.0) -> None:
     while True:
         notDone = False
         subList = []
@@ -166,7 +176,7 @@ def fixCoord(connex, weights, majors, coords, sideDir, dist = 1.0):
     return
 
 # moveSubtree: move subtree (all nodes under the rootNode)
-def moveSubtree(connex, coords, rootNode, add, direct):
+def moveSubtree(connex: list, coords: list, rootNode: int, add: float, direct: str) -> None:
     currScan = rootNode   # init
     # traverse lines iteratively until the node either
     # has no child node or has multiple child nodes
@@ -184,7 +194,7 @@ def moveSubtree(connex, coords, rootNode, add, direct):
     return
 
 # addCoord: add a distance to coordinate depending on screen direction
-def addCoord(initCoord, add, direction):
+def addCoord(initCoord: list, add: float, direction: str) -> list:   # coord output
     if direction == 'U':
         return [initCoord[0], initCoord[1] + add]   # UP: add (+) to y-coord
     if direction == 'D':
@@ -193,8 +203,43 @@ def addCoord(initCoord, add, direction):
         return [initCoord[0] - add, initCoord[1]]   # LEFT: add (-) to x-coord
     if direction == 'R':
         return [initCoord[0] + add, initCoord[1]]   # RIGHT: add (+) to x-coord
-
-# connexSort: sort connex[current] according to ascending weights
-def connexSort(connex, weights, current):
-    return [i for (v, i) in sorted ((weights[i], i) for i in connex[current])]
 # ~~~~~~~~~~~~~~~~~~~~~~~~~ algorithm functions ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# drawTree: initial tree drawing
+def drawTree(inputTree: object, rootName: str, outDir: str, sideRelDir: str,
+                countTree: Callable, getChildNodes: Callable) -> tuple:
+    # init directions
+    cwDirs = {'U':'R', 'D':'L', 'L':'U', 'R':'D'}
+    ccwDirs = {'U':'L', 'D':'R', 'L':'D', 'R':'U'}
+    if not outDir in cwDirs:
+        raise ValueError("invalid outDir input.")
+    if sideRelDir == 'CW':
+        sideDir = cwDirs[outDir]
+    elif sideRelDir == 'CCW':
+        sideDir = ccwDirs[outDir]
+    else:
+        raise ValueError("invalid sideRelDir input.")
+    # init other structures
+    fillCtr = [0]   # int pointer: counter for filled entries so far in connecNodes
+    lenTree = countTree(inputTree)   # number of nodes
+    connecNodes = [None] * lenTree
+    weightNodes = [None] * lenTree
+    majorNodes = [None] * lenTree
+    coordNodes = [None] * lenTree
+    coordNodes[0] = [0,0]   # coordinate of root node
+    labelDict = {}   # dict, a set-like datatype, has faster 'in'
+    labelDict[rootName] = 0   # label of root node
+    # doClosure: closure of inputTree and getChildNodes on preProcNewNodes
+    def doClosure(inpTree: object, inpFxn: Callable):
+        def outFxn(fillCtr, connex: list, labels: dict, currentStr: str) -> list:
+            return preProcNewNodes(inpTree, fillCtr, connex, labels, currentStr, inpFxn)
+        return outFxn
+    # perform the processing functions
+    # print("Began Phase 1: analyzing nodes...")
+    analyzeNode(fillCtr, connecNodes, labelDict, weightNodes, majorNodes,
+                rootName, doClosure(inputTree, getChildNodes))
+    # print("Began Phase 2: setting initial coordinates...")
+    setInitCoord(connecNodes, weightNodes, coordNodes, outDir, sideDir)
+    # print("Began Phase 3: fixing coordinates...")
+    fixCoord(connecNodes, weightNodes, majorNodes, coordNodes, sideDir)
+    return connecNodes, labelDict, coordNodes, weightNodes, majorNodes
