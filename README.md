@@ -1,12 +1,15 @@
 #  tree_drawing
 Naive Rooted Tree Drawing Algorithm in Python 3
 
-The aim is simple. From this...
+### The objective is simple. From this . . .
+
 ![Input Tree Data](./images/input.png)
-...to this!
+
+### . . . to this!
+
 ![Output Tree Drawing](./images/output.png)
 
-Of course, the tree data above is just an example; input tree can be a "pointer" to database, spreadsheet, etc.
+Of course, the tree data above is just an example. Input tree can be a "pointer" to database, spreadsheet, etc.
 
 Parts of the algorithm is recursive. Hence, expect the performance to be slower for larger trees, since Python doesn't support tail recursion.
 
