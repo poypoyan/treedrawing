@@ -10,7 +10,7 @@
 #     * rootName: str
 #               string to be set as the root node
 #     * outDir: str
-#               direction of 'speading' of the tree;
+#               direction of 'spreading' of the tree;
 #               one in {'U', 'D', 'L', 'R'}
 #     * sideRelDir: str
 #               direction of where to put the child with highest
@@ -33,15 +33,14 @@
 #                most likely not useful to the user
 #     * majorNodes: list
 #                majorNodes[nodeIdx] is the list of 'major' nodes 
-#                above nodeIdx; None if both nodeIdx is only child of
-#                its parent and nodeIdx itself has only one child
+#                above nodeIdx; None if nodeIdx is 'minor'
 #                most likely not useful to the user
 
 import tdcore
 import pickle
 
 # Execute tdcore.removeTraceback() to remove remove traceback from error
-# /exception messages. The algorithms of tree drawing does recursion.
+# /exception messages. The algorithms of tree drawing do recursion.
 # Hence when there is error during recursion, removing traceback hides
 # potentially several lines of text, and just prints the relevant error
 # info. To reset this, execute tdcore.restoreTraceback().

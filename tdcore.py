@@ -15,7 +15,7 @@ def removeTraceback():
 # restoreTraceback: restore default excepthook
 def restoreTraceback():
     sys.excepthook = sys.__excepthook__
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sus functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sys functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~ algorithm functions ~~~~~~~~~~~~~~~~~~~~~~~~~
 # analyzeNode: record relevant information for each node recursively
@@ -66,7 +66,7 @@ def preProcNewNodes(inputTree: object, fillCtr, connex: list, labels: dict,
     connex[labels[currentStr]] = connexArr   # save to connex
     return childNodeNames
 
-# setInitCoord: set initial coordinates to each node recusively
+# setInitCoord: set initial coordinates to each node recursively
 def setInitCoord(connex: list, weights: list, coords: list,
                 outDir: str, sideDir:str, current = 0, dist = 1.0) -> None:
     currScan = current   # init
@@ -114,7 +114,7 @@ def setInitCoord(connex: list, weights: list, coords: list,
 def connexSort(connex: list, weights: list, current: int) -> list:
     return [i for (v, i) in sorted ((weights[i], i) for i in connex[current])]
 
-# fixCoord: fix coordinates of nodes so that there is no nodes with same location
+# fixCoord: fix coordinates of nodes so that there are no nodes with same location
 def fixCoord(connex: list, weights: list, majors: list, coords: list,
                 sideDir: str, dist = 1.0) -> None:
     while True:
