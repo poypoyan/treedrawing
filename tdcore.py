@@ -78,7 +78,7 @@ def setInitCoord(connex: list, weights: list, coords: list,
         if currLength != 1:
             break
         currScan = connex[currScan][0]
-        lineNodes += [currScan]
+        lineNodes.append(currScan)
     # assign initial coordinates to line nodes
     for i in range(len(lineNodes)):
         spacing = dist * (i + 1) / len(lineNodes)
@@ -116,13 +116,13 @@ def connexSort(connex: list, weights: list, current: int) -> list:
 
 # fixCoord: fix coordinates of nodes so that there are no nodes with same location
 def fixCoord(connex: list, weights: list, majors: list, coords: list,
-                sideDir: str, dist = 1.0) -> None:
+                sideDir: str, dist = 1.0) -> None:   # dist must be same with the one in setInitCoord
     while True:
         notDone = False
         subList = []
         for i in range(len(connex)):
-            if coords[i] == None:
-                continue   # ignore disconnected nodes
+            if coords[i] == None or majors[i] == None:
+                continue   # ignore nodes disconnected to root node and minor nodes
             if coords[i] in subList:
                 # duplicate coord found, so we're not yet done
                 notDone = True
@@ -133,16 +133,15 @@ def fixCoord(connex: list, weights: list, majors: list, coords: list,
                     if splitNodeA != splitNodeB:
                         break   # tree split is found
                 # set relevant nodes and coord
+                testCoord = coords[i]   # = coords[overNode] anyway
                 if weights[splitNodeA] < weights[splitNodeB]:
                     stayRootNode = splitNodeB   # split node leading to overNode (will NOT move)
                     moveRootNode = splitNodeA   # split node leading to i (will move)
                     stayParNode = majors[overNode][-1]   # parent of overNode (will NOT move)
-                    testCoord = coords[i]   # coord of i (will move)
                 else:
                     stayRootNode = splitNodeA   # split node leading to i (will NOT move)
                     moveRootNode = splitNodeB   # split node leading to overNode (will move)
                     stayParNode = majors[i][-1]   # parent of i (will NOT move)
-                    testCoord = coords[overNode]   # coord of overNode (will move)
                 # set move direction
                 if sideDir == 'L' or sideDir == 'R':   # horizontal
                     if coords[moveRootNode][0] > coords[stayRootNode][0]:
@@ -170,7 +169,7 @@ def fixCoord(connex: list, weights: list, majors: list, coords: list,
                 subList = coords[0:i + 1]   # define new subList
             else:
                 # coord has no duplicate yet, so add it to subList
-                subList += [coords[i]]
+                subList.append(coords[i])
         if not notDone:
             break
     return

@@ -1,5 +1,5 @@
 #  treedrawing
-Naive Rooted Tree Drawing Algorithm in Python 3
+Naive Rooted Tree Drawing Algorithm
 
 ### The objective is simple. From this . . .
 
