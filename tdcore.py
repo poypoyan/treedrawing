@@ -119,14 +119,14 @@ def fixCoord(connex: list, weights: list, majors: list, coords: list,
                 sideDir: str, dist = 1.0) -> None:   # dist must be same with the one in setInitCoord
     while True:
         notDone = False
-        subList = []
+        subSet = set()
         for i in range(len(connex)):
             if coords[i] == None or majors[i] == None:
                 continue   # ignore nodes disconnected to root node and minor nodes
-            if coords[i] in subList:
+            if coords[i] in subSet:
                 # duplicate coord found, so we're not yet done
                 notDone = True
-                overNode = subList.index(coords[i])
+                overNode = coords.index(coords[i])   # guaranteed to be != i
                 for j in range(len(majors[i])):
                     splitNodeA = majors[i][j]   # init
                     splitNodeB = majors[overNode][j]   # init
@@ -166,10 +166,10 @@ def fixCoord(connex: list, weights: list, majors: list, coords: list,
                     if vacant:   # testCoord is now vacant
                         break   # so escape loop
                 moveSubtree(connex, coords, moveRootNode, moveCount * dist, moveDir)   # move subtree now!
-                subList = coords[0:i + 1]   # define new subList
+                break
             else:
-                # coord has no duplicate yet, so add it to subList
-                subList.append(coords[i])
+                # coord has no duplicate yet, so add it to subSet
+                subSet.add(coords[i])
         if not notDone:
             break
     return
@@ -181,7 +181,6 @@ def moveSubtree(connex: list, coords: list, rootNode: int, add: float, direct: s
     # has no child node or has multiple child nodes
     while True:
         coords[currScan] = addCoord(coords[currScan], add, direct)   # move coord
-        #print("---------", currScan, add, direct)
         currLength = len(connex[currScan])
         if currLength != 1:
             break
@@ -193,15 +192,15 @@ def moveSubtree(connex: list, coords: list, rootNode: int, add: float, direct: s
     return
 
 # addCoord: add a distance to coordinate depending on screen direction
-def addCoord(initCoord: list, add: float, direction: str) -> list:   # coord output
+def addCoord(initCoord: tuple, add: float, direction: str) -> list:   # coord output
     if direction == 'U':
-        return [initCoord[0], initCoord[1] + add]   # UP: add (+) to y-coord
+        return (initCoord[0], initCoord[1] + add)   # UP: add (+) to y-coord
     if direction == 'D':
-        return [initCoord[0], initCoord[1] - add]   # DOWN: add (-) to y-coord
+        return (initCoord[0], initCoord[1] - add)   # DOWN: add (-) to y-coord
     if direction == 'L':
-        return [initCoord[0] - add, initCoord[1]]   # LEFT: add (-) to x-coord
+        return (initCoord[0] - add, initCoord[1])   # LEFT: add (-) to x-coord
     if direction == 'R':
-        return [initCoord[0] + add, initCoord[1]]   # RIGHT: add (+) to x-coord
+        return (initCoord[0] + add, initCoord[1])   # RIGHT: add (+) to x-coord
 # ~~~~~~~~~~~~~~~~~~~~~~~~~ algorithm functions ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # drawTree: initial tree drawing
@@ -225,7 +224,7 @@ def drawTree(inputTree: object, rootName: str, outDir: str, sideRelDir: str,
     weightNodes = [None] * lenTree
     majorNodes = [None] * lenTree
     coordNodes = [None] * lenTree
-    coordNodes[0] = [0,0]   # coordinate of root node
+    coordNodes[0] = (0,0)   # coordinate of root node
     labelDict = {}   # dict, a set-like datatype, has faster 'in'
     labelDict[rootName] = 0   # label of root node
     # doClosure: closure of inputTree and getChildNodes on preProcNewNodes

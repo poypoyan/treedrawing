@@ -81,9 +81,9 @@ def getChildNodes(inputTree: object, nodeName: str) -> list:
 # note: in SVG coordinates, the vertical coordinate is reversed:
 #       if outDir is 'U' (up), then SVG drawing goes down, and vice versa
 def svgOutput(connecNodes, labelDict, coordNodes, weightNodes, majorNodes):
-    svgSize = [80*16, 80*7]   # width/x, height/y
-    origin = [80*8, 80*1]   # width/x, height/y
-    zoom = [60, 60]   # width/x, height/y
+    svgSize = (80*16, 80*7)   # width/x, height/y
+    origin = (80*8, 80*1)   # width/x, height/y
+    zoom = (60, 60)   # width/x, height/y
     # write html with svg
     with open("TreeDrawing.html", "w") as out:
         out.write("<!DOCTYPE html>\n<html>\n<title>Rooted Tree Drawing Output</title>\n<body>\n")
