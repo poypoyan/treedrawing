@@ -13,13 +13,12 @@ Of course, the tree data above is just an example. Input tree can be a "pointer"
 
 Parts of the algorithm are recursive. Hence, expect the performance to be slower and memory-intensive for larger trees.
 
-#### Algorithm Description & Proof of Correctness
-https://github.com/poypoyan/matematex/blob/main/treedrawing.pdf
+#### Algorithm Description
+https://github.com/poypoyan/matematex/blob/main/files/treedrawing.pdf
 
 #### TODO
-- Proof that no branches/edges would intersect (PDF & TEX)
 - Drawing of edited input tree
-- Port on a language with tail-call optimization
+- Port on other languages (e.g. C++)
 
 #### Installation & Tutorial
 1. Just download the ZIP for this repository, extract to a folder.

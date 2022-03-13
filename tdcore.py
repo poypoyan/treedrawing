@@ -68,7 +68,7 @@ def preProcNewNodes(inputTree: object, fillCtr, connex: list, labels: dict,
 
 # setInitCoord: set initial coordinates to each node recursively
 def setInitCoord(connex: list, weights: list, coords: list,
-                outDir: str, sideDir:str, current = 0, dist = 1.0) -> None:
+                outDir: str, sideDir:str, current = 0) -> None:
     currScan = current   # init
     lineNodes = []   # store nodes with only 1 child node
     # traverse lines iteratively until the node either
@@ -81,7 +81,7 @@ def setInitCoord(connex: list, weights: list, coords: list,
         lineNodes.append(currScan)
     # assign initial coordinates to line nodes
     for i in range(len(lineNodes)):
-        spacing = dist * (i + 1) / len(lineNodes)
+        spacing = (i + 1) / len(lineNodes)
         coords[lineNodes[i]] = addCoord(coords[current], spacing, outDir)
     # do all below if currScan has multiple child nodes
     if currLength != 0:
@@ -97,16 +97,16 @@ def setInitCoord(connex: list, weights: list, coords: list,
             childSideDir = 'L'
         # the child node with the highest measure should be on center
         centerChild = connex[currScan][-1]
-        coords[centerChild] = addCoord(coords[currScan], dist, outDir)
-        setInitCoord(connex, weights, coords, outDir, childSideDir, centerChild, dist)
+        coords[centerChild] = addCoord(coords[currScan], 1.0, outDir)   # 1 unit of distance
+        setInitCoord(connex, weights, coords, outDir, childSideDir, centerChild)
         # assign coordinates to other child nodes
         for (i, j) in enumerate(connex[currScan][0:-1]):
-            spacing = dist * ((i // 2) + 1)
+            spacing = i // 2 + 1
             if i % 2 == 0:
                 coords[j] = addCoord(coords[centerChild], spacing, sideDir)
             else:
                 coords[j] = addCoord(coords[centerChild], spacing, childSideDir)
-            setInitCoord(connex, weights, coords, outDir, childSideDir, j, dist)
+            setInitCoord(connex, weights, coords, outDir, childSideDir, j)
     # final stuff
     return
 
@@ -116,17 +116,16 @@ def connexSort(connex: list, weights: list, current: int) -> list:
 
 # fixCoord: fix coordinates of nodes so that there are no nodes with same location
 def fixCoord(connex: list, weights: list, majors: list, coords: list,
-                sideDir: str, dist = 1.0) -> None:   # dist must be same with the one in setInitCoord
+                sideDir: str) -> None:
     while True:
         notDone = False
-        subSet = set()
         for i in range(len(connex)):
             if coords[i] == None or majors[i] == None:
                 continue   # ignore nodes disconnected to root node and minor nodes
-            if coords[i] in subSet:
+            overNode = coords.index(coords[i])
+            if overNode != i:
                 # duplicate coord found, so we're not yet done
                 notDone = True
-                overNode = coords.index(coords[i])   # guaranteed to be != i
                 for j in range(len(majors[i])):
                     splitNodeA = majors[i][j]   # init
                     splitNodeB = majors[overNode][j]   # init
@@ -157,7 +156,7 @@ def fixCoord(connex: list, weights: list, majors: list, coords: list,
                 moveCount = 0
                 while True:
                     moveCount += 1
-                    testCoord = addCoord(testCoord, dist, moveDir)   # move coord
+                    testCoord = addCoord(testCoord, 1.0, moveDir)   # 1 unit of distance
                     vacant = True
                     for j in connex[stayParNode]:
                         if testCoord == coords[j]:
@@ -165,11 +164,7 @@ def fixCoord(connex: list, weights: list, majors: list, coords: list,
                             break   # another child of stayParNode, so move again
                     if vacant:   # testCoord is now vacant
                         break   # so escape loop
-                moveSubtree(connex, coords, moveRootNode, moveCount * dist, moveDir)   # move subtree now!
-                break
-            else:
-                # coord has no duplicate yet, so add it to subSet
-                subSet.add(coords[i])
+                moveSubtree(connex, coords, moveRootNode, moveCount, moveDir)   # move subtree now!
         if not notDone:
             break
     return
