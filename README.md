@@ -11,14 +11,14 @@ Naive Rooted Tree Drawing Algorithm
 
 Of course, the tree data above is just an example. Input tree can be a "pointer" to database, spreadsheet, etc.
 
-Parts of the algorithm are recursive. Hence, expect the performance to be slower and memory-intensive for larger trees.
+This is written in Python and parts of the algorithm are recursive. Hence, expect the performance to be slower and memory-intensive for larger trees.
+
+Note that intersecting branches in a manner like in image below may occur, wherein a sub-rooted tree is sandwiched between two children of another sub-rooted tree.
+
+![Sample of Possible Intersection Branches](./images/intersecting-branches.png)
 
 #### Algorithm Description
 https://github.com/poypoyan/matematex/blob/main/files/treedrawing.pdf
-
-#### TODO
-- Drawing of edited input tree
-- Port on other languages (e.g. C++)
 
 #### Installation & Tutorial
 1. Just download the ZIP for this repository, extract to a folder.
