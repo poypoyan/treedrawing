@@ -13,10 +13,6 @@ Of course, the tree data above is just an example. Input tree can be a "pointer"
 
 This is written in Python and parts of the algorithm are recursive. Hence, expect the performance to be slower and memory-intensive for larger trees.
 
-Note that intersecting branches in a manner like in image below may occur, wherein a sub-rooted tree is sandwiched between two children of another sub-rooted tree.
-
-![Sample of Possible Intersection Branches](./images/intersecting-branches.png)
-
 #### Algorithm Description
 https://github.com/poypoyan/matematex/blob/main/files/treedrawing.pdf
 

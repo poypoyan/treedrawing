@@ -132,15 +132,12 @@ def fixCoord(connex: list, weights: list, majors: list, coords: list,
                     if splitNodeA != splitNodeB:
                         break   # tree split is found
                 # set relevant nodes and coord
-                testCoord = coords[i]   # = coords[overNode] anyway
                 if weights[splitNodeA] < weights[splitNodeB]:
                     stayRootNode = splitNodeB   # split node leading to overNode (will NOT move)
                     moveRootNode = splitNodeA   # split node leading to i (will move)
-                    stayParNode = majors[overNode][-1]   # parent of overNode (will NOT move)
                 else:
                     stayRootNode = splitNodeA   # split node leading to i (will NOT move)
                     moveRootNode = splitNodeB   # split node leading to overNode (will move)
-                    stayParNode = majors[i][-1]   # parent of i (will NOT move)
                 # set move direction
                 if sideDir == 'L' or sideDir == 'R':   # horizontal
                     if coords[moveRootNode][0] > coords[stayRootNode][0]:
@@ -152,19 +149,8 @@ def fixCoord(connex: list, weights: list, majors: list, coords: list,
                         moveDir = 'U'
                     else:
                         moveDir = 'D'
-                # set move distance
-                moveCount = 0
-                while True:
-                    moveCount += 1
-                    testCoord = addCoord(testCoord, 1.0, moveDir)   # 1 unit of distance
-                    vacant = True
-                    for j in connex[stayParNode]:
-                        if testCoord == coords[j]:
-                            vacant = False   # new testCoord is already occupied by
-                            break   # another child of stayParNode, so move again
-                    if vacant:   # testCoord is now vacant
-                        break   # so escape loop
-                moveSubtree(connex, coords, moveRootNode, moveCount, moveDir)   # move subtree now!
+                # move subtree by 1 unit now
+                moveSubtree(connex, coords, moveRootNode, 1, moveDir)
         if not notDone:
             break
     return
