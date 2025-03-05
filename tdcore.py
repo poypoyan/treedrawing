@@ -97,7 +97,7 @@ def setInitCoord(connex: list, weights: list, coords: list,
             childSideDir = 'L'
         # the child node with the highest measure should be on center
         centerChild = connex[currScan][-1]
-        coords[centerChild] = addCoord(coords[currScan], 1.0, outDir)   # 1 unit of distance
+        coords[centerChild] = addCoord(coords[currScan], 1.0, outDir)   # next 1 unit
         setInitCoord(connex, weights, coords, outDir, childSideDir, centerChild)
         # assign coordinates to other child nodes
         for (i, j) in enumerate(connex[currScan][0:-1]):
@@ -107,7 +107,6 @@ def setInitCoord(connex: list, weights: list, coords: list,
             else:
                 coords[j] = addCoord(coords[centerChild], spacing, childSideDir)
             setInitCoord(connex, weights, coords, outDir, childSideDir, j)
-    # final stuff
     return
 
 # connexSort: sort connex[current] according to ascending weights
@@ -149,8 +148,8 @@ def fixCoord(connex: list, weights: list, majors: list, coords: list,
                         moveDir = 'U'
                     else:
                         moveDir = 'D'
-                # move subtree by 1 unit now
-                moveSubtree(connex, coords, moveRootNode, 1, moveDir)
+                # move subtree by 1 unit now!
+                moveSubtree(connex, coords, moveRootNode, 1.0, moveDir)
         if not notDone:
             break
     return
