@@ -116,40 +116,48 @@ def connexSort(connex: list, weights: list, current: int) -> list:
 # fixCoord: fix coordinates of nodes so that there are no nodes with same location
 def fixCoord(connex: list, weights: list, majors: list, coords: list,
                 sideDir: str) -> None:
+    majorNodesLoop = [i for i in range(1, len(connex)) if coords[i] != None and majors[i] != None]
     while True:
         notDone = False
-        for i in range(len(connex)):
-            if coords[i] == None or majors[i] == None:
-                continue   # ignore nodes disconnected to root node and minor nodes
-            overNode = coords.index(coords[i])
-            if overNode != i:
-                # duplicate coord found, so we're not yet done
-                notDone = True
-                for j in range(len(majors[i])):
-                    splitNodeA = majors[i][j]   # init
-                    splitNodeB = majors[overNode][j]   # init
-                    if splitNodeA != splitNodeB:
-                        break   # tree split is found
-                # set relevant nodes and coord
-                if weights[splitNodeA] < weights[splitNodeB]:
-                    stayRootNode = splitNodeB   # split node leading to overNode (will NOT move)
-                    moveRootNode = splitNodeA   # split node leading to i (will move)
+        for i in majorNodesLoop:
+            # we need to find closest node with duplicate coord
+            champ_k = splitNodeA = splitNodeB = 0
+            foundDup = False
+            for j in majorNodesLoop:
+                if j != i and len(majors[j]) == len(majors[i]) and coords[j] == coords[i]:
+                    # duplicate coord found
+                    notDone = foundDup = True
+                    for k in range(len(majors[i])):
+                        trySplitNodeA = majors[i][k]
+                        trySplitNodeB = majors[j][k]
+                        if trySplitNodeA != trySplitNodeB:
+                            break   # tree split is found
+                    if k > champ_k:   # closest node = further away from the root
+                        champ_k = k
+                        splitNodeA = trySplitNodeA
+                        splitNodeB = trySplitNodeB
+            if not foundDup:
+                continue
+            # set relevant nodes and coord
+            if weights[splitNodeA] < weights[splitNodeB]:
+                stayRootNode = splitNodeB   # split node leading to j (will NOT move)
+                moveRootNode = splitNodeA   # split node leading to i (will move)
+            else:
+                stayRootNode = splitNodeA   # split node leading to i (will NOT move)
+                moveRootNode = splitNodeB   # split node leading to j (will move)
+            # set move direction
+            if sideDir == 'L' or sideDir == 'R':   # horizontal
+                if coords[moveRootNode][0] > coords[stayRootNode][0]:
+                    moveDir = 'R'
                 else:
-                    stayRootNode = splitNodeA   # split node leading to i (will NOT move)
-                    moveRootNode = splitNodeB   # split node leading to overNode (will move)
-                # set move direction
-                if sideDir == 'L' or sideDir == 'R':   # horizontal
-                    if coords[moveRootNode][0] > coords[stayRootNode][0]:
-                        moveDir = 'R'
-                    else:
-                        moveDir = 'L'
-                elif sideDir == 'U' or sideDir == 'D':   # vertical
-                    if coords[moveRootNode][1] > coords[stayRootNode][1]:
-                        moveDir = 'U'
-                    else:
-                        moveDir = 'D'
-                # move subtree by 1 unit now!
-                moveSubtree(connex, coords, moveRootNode, 1.0, moveDir)
+                    moveDir = 'L'
+            elif sideDir == 'U' or sideDir == 'D':   # vertical
+                if coords[moveRootNode][1] > coords[stayRootNode][1]:
+                    moveDir = 'U'
+                else:
+                    moveDir = 'D'
+            # move subtree by 1 unit now!
+            moveSubtree(connex, coords, moveRootNode, 1.0, moveDir)
         if not notDone:
             break
     return
